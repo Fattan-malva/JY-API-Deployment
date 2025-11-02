@@ -4,11 +4,11 @@ const JustMeController = require('../Controllers/C.TrxTchJM_Available');
 const { authenticateToken } = require('../Auth/middleware');
 
 // GET all justme
-router.get('/', JustMeController.getAll);
+router.get('/', authenticateToken, JustMeController.getAll);
 // GET justme by date
-router.get('/by-date', JustMeController.getByDate);
+router.get('/by-date', authenticateToken, JustMeController.getByDate);
 // GET justme by date and studio
-router.get('/by-date-studio', JustMeController.getByDateAndStudio);
+router.get('/by-date-studio', authenticateToken, JustMeController.getByDateAndStudio);
 // POST create booking
 router.post('/', authenticateToken, JustMeController.create);
 

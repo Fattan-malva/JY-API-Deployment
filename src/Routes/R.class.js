@@ -5,7 +5,7 @@ const { authenticateToken } = require('../Auth/middleware');
 
 // Public (tidak perlu login)
 router.get('/', ClassController.index);
-router.get('/:id', ClassController.show);
+router.get('/:id', authenticateToken, ClassController.show);
 
 // Private (harus login pakai JWT)
 router.post('/', authenticateToken, ClassController.store);
