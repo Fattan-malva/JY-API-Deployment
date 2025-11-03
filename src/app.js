@@ -44,7 +44,22 @@ app.use('/api/customers', CustomerLoginRoutes);
 app.use('/api/product', ProductRoutes);
 
 // Health check
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/health', (req, res) => {
+  const healthData = {
+    status: '💚 Online',
+    uptime: `${Math.floor(process.uptime())}s`,
+    time: new Date().toISOString(),
+  };
+
+  // Log cantik di console hanya saat di production
+  if (process.env.NODE_ENV === 'production') {
+    console.log(chalk.greenBright(`💚 Health check OK at ${new Date().toLocaleString('id-ID')}`));
+  } else {
+    console.log(chalk.yellowBright(`🧪 Dev health check at ${new Date().toLocaleString('id-ID')}`));
+  }
+
+  res.status(200).json(healthData);
+});
 
 const listRoutes = require('./utils/listRoutes');
 
