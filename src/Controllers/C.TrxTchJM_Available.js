@@ -74,4 +74,25 @@ async function create(req, res) {
   }
 }
 
-module.exports = { getAll, getByDate, getByDateAndStudio, create };
+async function getScheduleExtend(req, res) {
+  try {
+    const { TrxDate, TchID, Sequence } = req.query;
+
+    if (!TrxDate || !TchID || !Sequence) {
+      return res.status(400).json({ message: "TrxDate, TchID, and Sequence are required" });
+    }
+
+    const result = await JustMeModel.FindScheduleExtend(TrxDate, TchID, parseInt(Sequence));
+
+    if (!result.success) {
+      return res.status(404).json({ message: result.message });
+    }
+
+    res.json(result.data);
+  } catch (error) {
+    console.error("Error fetching schedule extend:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+module.exports = { getAll, getByDate, getByDateAndStudio, create, getScheduleExtend };

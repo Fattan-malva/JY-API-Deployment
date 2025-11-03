@@ -9,6 +9,8 @@ router.get('/', authenticateToken, JustMeController.getAll);
 router.get('/by-date', authenticateToken, JustMeController.getByDate);
 // GET justme by date and studio
 router.get('/by-date-studio', authenticateToken, JustMeController.getByDateAndStudio);
+// GET schedule extend
+router.get('/schedule-extend', authenticateToken, JustMeController.getScheduleExtend);
 // POST create booking
 router.post('/', authenticateToken, JustMeController.create);
 
