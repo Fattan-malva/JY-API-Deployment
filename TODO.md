@@ -1,0 +1,4 @@
+- [x] Update route in R.TrxStudentJM_BookingList.js to use query parameter like TrxClassBooking
+- [x] Modify controller in C.TrxStudentJM_BookingList.js to use req.query.CustomerId and add validation
+- [x] Update model in M.TrxStudentJM_BookingList.js to return all records and fix function name
+- [x] Test the API endpoint

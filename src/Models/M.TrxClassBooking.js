@@ -150,7 +150,124 @@ async function findByCustomerID(customerID) {
               )
       ) cs
 
-      WHERE tcb.customerID = @customerID
+      WHERE 
+          tcb.customerID = @customerID
+          AND
+		      tcb.isRelease = 0
+      ORDER BY
+          tcb.ClassBookingDate DESC,
+          tcb.ClassBookingTime DESC;
+    `);
+
+  return result.recordset;
+}
+
+async function findHistoryByCustomerID(customerID) {
+  if (!customerID) {
+    throw new Error('customerID is required.');
+  }
+
+  const pool = await getPool();
+
+  const result = await pool.request()
+    .input('customerID', sql.VarChar(255), customerID)
+    .query(`
+      SELECT
+          tcb.ClassBookingDate,
+          mct.name,
+          tcb.ContractID,
+          tcb.AccessCardNumber,
+          ms.name AS StudioName,
+          mr.RoomName,
+          mc.ClassName,
+          tcb.ClassBookingTime,
+          mts.ETime AS TimeClsEnd,
+          tcb.ClassMapNumber,
+          tcb.isActive,
+          tcb.isConfirm,
+          tcb.isRelease,
+
+          -- Trainer names dari OUTER APPLY
+          cs.Teacher1Name,
+          cs.Teacher2Name
+
+      FROM TrxClassBooking AS tcb
+      LEFT JOIN MstTimeSchedule AS mts
+          ON mts.studioID = tcb.StudioID
+          AND tcb.ClassBookingDate BETWEEN mts.SDate AND mts.EDate
+          AND mts.stime = tcb.ClassBookingTime
+
+      INNER JOIN MstStudio AS ms
+          ON ms.studioID = tcb.StudioID
+
+      INNER JOIN MstRoomType AS mr
+          ON mr.RoomType = tcb.RoomType
+
+      INNER JOIN MstClass AS mc
+          ON mc.ClassID = tcb.ClassID
+
+      INNER JOIN MstCustomer AS mct
+          ON mct.customerID = tcb.customerID
+
+      -- Ambil nama trainer sesuai hari dari jadwal kelas
+      OUTER APPLY (
+          SELECT
+              CASE
+                  WHEN CAST(tcs.Date1 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_mon1.EmployeeName
+                  WHEN CAST(tcs.Date2 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_tue1.EmployeeName
+                  WHEN CAST(tcs.Date3 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_wed1.EmployeeName
+                  WHEN CAST(tcs.Date4 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_thu1.EmployeeName
+                  WHEN CAST(tcs.Date5 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_fri1.EmployeeName
+                  WHEN CAST(tcs.Date6 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_sat1.EmployeeName
+                  WHEN CAST(tcs.Date7 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_sun1.EmployeeName
+              END AS Teacher1Name,
+
+              CASE
+                  WHEN CAST(tcs.Date1 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_mon2.EmployeeName
+                  WHEN CAST(tcs.Date2 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_tue2.EmployeeName
+                  WHEN CAST(tcs.Date3 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_wed2.EmployeeName
+                  WHEN CAST(tcs.Date4 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_thu2.EmployeeName
+                  WHEN CAST(tcs.Date5 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_fri2.EmployeeName
+                  WHEN CAST(tcs.Date6 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_sat2.EmployeeName
+                  WHEN CAST(tcs.Date7 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) THEN e_sun2.EmployeeName
+              END AS Teacher2Name
+
+          FROM TrxClassSchedule AS tcs
+          LEFT JOIN MstEmployee e_mon1 ON e_mon1.EmployeeID = tcs.MonTch1
+          LEFT JOIN MstEmployee e_mon2 ON e_mon2.EmployeeID = tcs.MonTch2
+          LEFT JOIN MstEmployee e_tue1 ON e_tue1.EmployeeID = tcs.TueTch1
+          LEFT JOIN MstEmployee e_tue2 ON e_tue2.EmployeeID = tcs.TueTch2
+          LEFT JOIN MstEmployee e_wed1 ON e_wed1.EmployeeID = tcs.WedTch1
+          LEFT JOIN MstEmployee e_wed2 ON e_wed2.EmployeeID = tcs.WedTch2
+          LEFT JOIN MstEmployee e_thu1 ON e_thu1.EmployeeID = tcs.ThuTch1
+          LEFT JOIN MstEmployee e_thu2 ON e_thu2.EmployeeID = tcs.ThuTch2
+          LEFT JOIN MstEmployee e_fri1 ON e_fri1.EmployeeID = tcs.FriTch1
+          LEFT JOIN MstEmployee e_fri2 ON e_fri2.EmployeeID = tcs.FriTch2
+          LEFT JOIN MstEmployee e_sat1 ON e_sat1.EmployeeID = tcs.SatTch1
+          LEFT JOIN MstEmployee e_sat2 ON e_sat2.EmployeeID = tcs.SatTch2
+          LEFT JOIN MstEmployee e_sun1 ON e_sun1.EmployeeID = tcs.SunTch1
+          LEFT JOIN MstEmployee e_sun2 ON e_sun2.EmployeeID = tcs.SunTch2
+
+          WHERE
+              tcs.StudioID = tcb.StudioID
+              AND tcs.RoomType = tcb.RoomType
+              AND tcb.ClassBookingDate BETWEEN tcs.SDate AND tcs.EDate
+              AND tcs.TimeCls = tcb.ClassBookingTime
+              AND (
+                  CAST(tcs.Date1 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) OR
+                  CAST(tcs.Date2 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) OR
+                  CAST(tcs.Date3 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) OR
+                  CAST(tcs.Date4 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) OR
+                  CAST(tcs.Date5 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) OR
+                  CAST(tcs.Date6 AS DATE) = CAST(tcb.ClassBookingDate AS DATE) OR
+                  CAST(tcs.Date7 AS DATE) = CAST(tcb.ClassBookingDate AS DATE)
+              )
+      ) cs
+
+      WHERE 
+          tcb.customerID = @customerID
+          AND
+          tcb.isRelease = 1
       ORDER BY
           tcb.ClassBookingDate DESC,
           tcb.ClassBookingTime DESC;
@@ -250,4 +367,4 @@ async function create(bookingData) {
 //   return { success: true };
 // }
 
-module.exports = { findAll, findByUniqCode, findByCustomerID, create };
+module.exports = { findAll, findByUniqCode, findByCustomerID, findHistoryByCustomerID, create };

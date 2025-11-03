@@ -6,15 +6,16 @@ const rateLimit = require('express-rate-limit');
 const chalk = require('chalk');
 
 const authRoutes = require('./Routes/R.auth');
-const classRoutes = require('./Routes/R.class');
-const scheduleRoutes = require('./Routes/R.TrxSchedule');
-const studioRoutes = require('./Routes/R.MstStudio');
-const roomTypeRoutes = require('./Routes/R.MstRoomType');
-const bookingRoutes = require('./Routes/R.TrxClassBooking');
-const JustMeRoutes = require('./Routes/R.TrxTchJM_Available');
 const ActivationRoutes = require('./Routes/R.Activation');
 const CustomerLoginRoutes = require('./Routes/R.CustomerLogin');
+const classRoutes = require('./Routes/R.class');
+const studioRoutes = require('./Routes/R.MstStudio');
+const scheduleRoutes = require('./Routes/R.TrxSchedule');
+const roomTypeRoutes = require('./Routes/R.MstRoomType');
 const ProductRoutes = require('./Routes/R.MstProduct');
+const bookingRoutes = require('./Routes/R.TrxClassBooking');
+const JustMeRoutes = require('./Routes/R.TrxTchJM_Available');
+const TrxStudentJM_BookingListRoutes = require('./Routes/R.TrxStudentJM_BookingList');
 
 const app = express();
 
@@ -33,15 +34,16 @@ app.use(limiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/classes', classRoutes);
-app.use('/api/schedules', scheduleRoutes);
-app.use('/api/studios', studioRoutes);
-app.use('/api/room-types', roomTypeRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/justme', JustMeRoutes);
 app.use('/api/activation', ActivationRoutes);
 app.use('/api/customers', CustomerLoginRoutes);
 app.use('/api/product', ProductRoutes);
+app.use('/api/classes', classRoutes);
+app.use('/api/studios', studioRoutes);
+app.use('/api/room-types', roomTypeRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/justme', JustMeRoutes);
+app.use('/api/jm-bookings', TrxStudentJM_BookingListRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
