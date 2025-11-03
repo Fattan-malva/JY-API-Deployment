@@ -155,8 +155,8 @@ async function findByCustomerID(customerID) {
           AND
 		      tcb.isRelease = 0
       ORDER BY
-          tcb.ClassBookingDate DESC,
-          tcb.ClassBookingTime DESC;
+          tcb.ClassBookingDate ASC,
+          tcb.ClassBookingTime ASC;
     `);
 
   return result.recordset;
