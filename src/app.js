@@ -46,72 +46,12 @@ app.use('/api/product', ProductRoutes);
 // Health check
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-
-
-const listRoutes = (app) => {
-  console.log(chalk.cyan.bold('\n📋 Registered Routes:\n'));
-
-  const cleanPath = (regex) => {
-    return regex
-      .toString()
-      .replace(/^\/\^/, '') // hapus /^
-      .replace(/\\\//g, '/') // ubah \/ jadi /
-      .replace(/\(\?\=\\\/\|\$\)/, '') // hapus (?=\/|$)
-      .replace(/\?\(\=\.\*\)\$/, '')
-      .replace(/\?\(\=\.\*\)/, '')
-      .replace(/\$$/, '')
-      .replace(/\/i$/, '')
-      .replace(/\?.*/, '') // hapus sisa ?(.*)
-      .replace(/\/$/, '') // hapus slash akhir
-      .trim();
-  };
-
-  // Warna berdasarkan method HTTP
-  const colorMethod = (method) => {
-    switch (method) {
-      case 'GET': return chalk.greenBright(method);
-      case 'POST': return chalk.yellowBright(method);
-      case 'PUT': return chalk.blueBright(method);
-      case 'DELETE': return chalk.redBright(method);
-      default: return chalk.white(method);
-    }
-  };
-
-  let count = 0;
-
-  app._router.stack.forEach((middleware) => {
-    if (middleware.route) {
-      // Route langsung
-      const methods = Object.keys(middleware.route.methods)
-        .map((m) => m.toUpperCase());
-      methods.forEach((method) => {
-        console.log(`${colorMethod(method).padEnd(10)} ${middleware.route.path}`);
-        count++;
-      });
-    } else if (middleware.name === 'router') {
-      // Router modular
-      middleware.handle.stack.forEach((handler) => {
-        if (handler.route) {
-          const methods = Object.keys(handler.route.methods)
-            .map((m) => m.toUpperCase());
-          const base = cleanPath(middleware.regexp);
-          methods.forEach((method) => {
-            console.log(`${colorMethod(method).padEnd(10)} ${base}${handler.route.path}`);
-            count++;
-          });
-        }
-      });
-    }
-  });
-
-  console.log(chalk.cyan.bold(`\n✅ Done listing routes. Total routes: ${chalk.yellow(count)}\n`));
-};
+const listRoutes = require('./utils/listRoutes');
 
 // Tampilkan daftar routes hanya jika bukan production
 if (process.env.NODE_ENV !== 'production') {
   listRoutes(app);
 }
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
