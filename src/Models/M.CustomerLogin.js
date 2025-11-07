@@ -13,13 +13,16 @@ async function findById(customerID) {
         mcl.toStudioID,
 		    ms.name as StudioName,
         mcl.lastContractID,
+        mp.isAllClub,
         mcl.noIdentity,
         mcl.birthDate,
         mcl.phone,
         mci.pic
       FROM MstCustomerLogin mcl
-	    INNER JOIN MstStudio ms ON ms.studioID = mcl.toStudioID
-      LEFT JOIN MstCustomerImage mci ON mci.customerID = mcl.customerID
+	      INNER JOIN MstStudio ms ON ms.studioID = mcl.toStudioID
+        LEFT JOIN TrxContract tc ON tc.contractID = mcl.lastContractID
+        LEFT JOIN MstProduct mp ON mp.productID = tc.productID
+        LEFT JOIN MstCustomerImage mci ON mci.customerID = mcl.customerID
       WHERE mcl.customerID =  @customerID`);
   return result.recordset[0];
 }
