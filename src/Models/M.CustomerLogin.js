@@ -14,6 +14,7 @@ async function findById(customerID) {
 		    ms.name as StudioName,
         mcl.lastContractID,
         mp.isAllClub,
+        tc.status,
         mcl.noIdentity,
         mcl.birthDate,
         mcl.phone,
