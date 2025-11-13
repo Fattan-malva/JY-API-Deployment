@@ -201,6 +201,7 @@ async function create(req, res) {
     ToStudioID,
     TchID,
     TchSeq,
+    TchSeq2,
     BookBy,
     CreatedBy
   } = req.body;
@@ -289,6 +290,7 @@ async function create(req, res) {
 
 
     // 🟢 2️⃣ Update isBook jadi true di TrxTchJM_Available
+    // 🟢 2️⃣ Update isBook jadi true di TrxTchJM_Available
     await transaction
       .request()
       .input('TrxDate', sql.DateTime, TrxDate)
@@ -296,13 +298,32 @@ async function create(req, res) {
       .input('TchID', sql.VarChar(50), TchID)
       .input('TchSeq', sql.TinyInt, TchSeq)
       .query(`
-        UPDATE TrxTchJM_Available
-        SET isBook = 1
-        WHERE TrxDate = @TrxDate
-          AND ToStudioID = @ToStudioID
-          AND TchID = @TchID
-          AND Sequence = @TchSeq
-      `);
+    UPDATE TrxTchJM_Available
+    SET isBook = 1
+    WHERE TrxDate = @TrxDate
+      AND ToStudioID = @ToStudioID
+      AND TchID = @TchID
+      AND Sequence = @TchSeq
+  `);
+
+    // 🔁 Jika ada TchSeq2, update juga slot kedua
+    if (TchSeq2 !== null && TchSeq2 !== undefined) {
+      await transaction
+        .request()
+        .input('TrxDate', sql.DateTime, TrxDate)
+        .input('ToStudioID', sql.VarChar(50), ToStudioID)
+        .input('TchID', sql.VarChar(50), TchID)
+        .input('TchSeq2', sql.TinyInt, TchSeq2)
+        .query(`
+      UPDATE TrxTchJM_Available
+      SET isBook = 1
+      WHERE TrxDate = @TrxDate
+        AND ToStudioID = @ToStudioID
+        AND TchID = @TchID
+        AND Sequence = @TchSeq2
+    `);
+    }
+
 
     // 📝 3️⃣ Insert ke TrxStudentJM_BookingList
     await transaction
@@ -313,6 +334,7 @@ async function create(req, res) {
       .input('ToStudioID', sql.VarChar(50), ToStudioID)
       .input('TchID', sql.VarChar(50), TchID)
       .input('TchSeq', sql.TinyInt, TchSeq)
+      .input('TchSeq2', sql.TinyInt, TchSeq2)
       .input('isRunning', sql.Bit, false)
       .input('BookBy', sql.VarChar(50), BookBy)
       .input('CreatedDate', sql.DateTime, new Date())
@@ -325,6 +347,7 @@ async function create(req, res) {
           ToStudioID,
           TchID,
           TchSeq,
+          TchSeq2,
           isRunning,
           BookBy,
           CreatedDate,
@@ -337,6 +360,7 @@ async function create(req, res) {
           @ToStudioID,
           @TchID,
           @TchSeq,
+          @TchSeq2,
           @isRunning,
           @BookBy,
           @CreatedDate,
@@ -358,4 +382,4 @@ async function create(req, res) {
   }
 }
 
-module.exports = { findAll, findByDate, findByDateAndStudio, checkAvailability,FindScheduleExtend, create };
+module.exports = { findAll, findByDate, findByDateAndStudio, checkAvailability, FindScheduleExtend, create };
