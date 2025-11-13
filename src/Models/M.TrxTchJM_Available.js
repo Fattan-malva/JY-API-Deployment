@@ -247,7 +247,28 @@ async function create(req, res) {
     //   });
     // }
 
-    // 🔍 1️⃣ Validasi jumlah booking per hari
+    // 🔍 1️⃣ Validasi apakah sudah ada booking di hari yang sama (baik single atau double session)
+    const checkAnyBooking = await transaction
+      .request()
+      .input('TrxDate', sql.SmallDateTime, TrxDate)
+      .input('CustomerID', sql.VarChar(50), CustomerID)
+      .query(`
+        SELECT COUNT(*) AS ExistingBookingCount
+        FROM TrxStudentJM_BookingList
+        WHERE TrxDate = @TrxDate
+          AND CustomerID = @CustomerID
+      `);
+
+    const { ExistingBookingCount } = checkAnyBooking.recordset[0];
+
+    if (ExistingBookingCount > 0) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: 'You have already booked a session on this date. You cannot book additional sessions.'
+      });
+    }
+
+    // 🔍 2️⃣ Validasi jumlah booking per hari
     const checkBooking = await transaction
       .request()
       .input('TrxDate', sql.SmallDateTime, TrxDate)
@@ -289,7 +310,6 @@ async function create(req, res) {
 
 
 
-    // 🟢 2️⃣ Update isBook jadi true di TrxTchJM_Available
     // 🟢 2️⃣ Update isBook jadi true di TrxTchJM_Available
     await transaction
       .request()
