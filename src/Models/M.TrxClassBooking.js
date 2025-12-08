@@ -59,6 +59,9 @@ async function findByCustomerID(customerID) {
     .input('customerID', sql.VarChar(255), customerID)
     .query(`
       SELECT
+          tcb.studioID,
+          tcb.roomType,
+          tcb.classID,
           tcb.ClassBookingDate,
           mct.name,
           tcb.ContractID,
@@ -173,6 +176,9 @@ async function findHistoryByCustomerID(customerID) {
     .input('customerID', sql.VarChar(255), customerID)
     .query(`
       SELECT
+          tcb.studioID,
+          tcb.RoomType,
+          tcb.ClassID,
           tcb.ClassBookingDate,
           mct.name,
           tcb.ContractID,
@@ -333,6 +339,54 @@ async function create(bookingData) {
   return { success: true, message: 'Booking created successfully.' };
 }
 
+async function cancelByUniqCode(body) {
+  const { UniqCode, customerID } = body;
+
+  if (!UniqCode || !customerID) {
+    throw new Error("UniqCode and customerID are required");
+  }
+
+  const parts = UniqCode.split('|');
+  if (parts.length !== 5) {
+    throw new Error('Invalid UniqCode format. Expected: studioID|RoomType|ClassID|YYYY-MM-DD|HH:mm');
+  }
+
+  const [studioIDStr, roomTypeStr, classIDStr, dateStr, timeStr] = parts;
+
+  const studioID = parseInt(studioIDStr, 10);
+  const roomType = parseInt(roomTypeStr, 10);
+  const classID = parseInt(classIDStr, 10);
+
+  const pool = await getPool();
+
+  const result = await pool.request()
+    .input('studioID', sql.Int, studioID)
+    .input('roomType', sql.Int, roomType)
+    .input('classID', sql.Int, classID)
+    .input('date', sql.VarChar, dateStr)
+    .input('time', sql.VarChar, timeStr)
+    .input('customerID', sql.VarChar(255), String(customerID))
+    .query(`
+      DELETE FROM TrxClassBooking
+      WHERE studioID = @studioID
+        AND RoomType = @roomType
+        AND ClassID = @classID
+        AND CONVERT(varchar(10), ClassBookingDate, 23) = @date
+        AND ClassBookingTime = @time
+        AND CustomerID = @customerID
+    `);
+
+  return {
+    success: result.rowsAffected[0] > 0,
+    message: result.rowsAffected[0] > 0
+      ? "Booking deleted successfully"
+      : "No booking found for this user with provided UniqCode"
+  };
+}
+
+
+
+
 //NO VALIDATED
 
 // async function create(bookingData) {
@@ -367,4 +421,4 @@ async function create(bookingData) {
 //   return { success: true };
 // }
 
-module.exports = { findAll, findByUniqCode, findByCustomerID, findHistoryByCustomerID, create };
+module.exports = { findAll, findByUniqCode, findByCustomerID, findHistoryByCustomerID, create, cancelByUniqCode };

@@ -101,5 +101,32 @@ async function create(req, res) {
     }
 }
 
+async function cancelByUniqCode(req, res) {
+    try {
+        const { UniqCode, customerID } = req.body;
 
-module.exports = { index, findByUniqCode, findByCustomerID, findHistoryByCustomerID, create };
+        if (!UniqCode) {
+            return res.status(400).json({ message: "UniqCode is required" });
+        }
+
+        if (!customerID) {
+            return res.status(400).json({ message: "customerID is required" });
+        }
+
+        const result = await BookingModel.cancelByUniqCode({ UniqCode, customerID });
+
+        if (!result.success) {
+            return res.status(404).json({ message: result.message });
+        }
+
+        res.json({ message: result.message });
+
+    } catch (error) {
+        console.error("Error cancelling booking:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+
+module.exports = { index, findByUniqCode, findByCustomerID, findHistoryByCustomerID, create, cancelByUniqCode };

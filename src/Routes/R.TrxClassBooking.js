@@ -5,9 +5,10 @@ const { authenticateToken } = require('../Auth/middleware');
 
 
 router.get('/', authenticateToken, BookingController.index);
-router.get('/find-by-uniq-code',authenticateToken, BookingController.findByUniqCode);
+router.get('/find-by-uniq-code', authenticateToken, BookingController.findByUniqCode);
 router.get('/find-by-customer-id', authenticateToken, BookingController.findByCustomerID);
 router.get('/find-history-by-customer-id', authenticateToken, BookingController.findHistoryByCustomerID);
 router.post('/', authenticateToken, BookingController.create);
+router.post('/cancel-booking', authenticateToken, BookingController.cancelByUniqCode);
 
 module.exports = router;
