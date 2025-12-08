@@ -143,6 +143,8 @@ async function FindScheduleExtend(TrxDate, TchID, Sequence) {
           ON A.TchID = B.TchID
           AND A.TrxDate = B.TrxDate
           AND B.Sequence = A.Sequence + 1
+          AND A.isBook = 0
+          AND B.isBook = 0
           AND CAST(A.TimeTo AS TIME) < CAST(B.TimeFrom AS TIME)
           AND DATEDIFF(MINUTE, CAST(A.TimeTo AS TIME), CAST(B.TimeFrom AS TIME)) <= 30
       WHERE A.TrxDate = @TrxDate
@@ -166,6 +168,8 @@ async function FindScheduleExtend(TrxDate, TchID, Sequence) {
           ON A.TchID = B.TchID
           AND A.TrxDate = B.TrxDate
           AND B.Sequence = A.Sequence + 1
+          AND A.isBook = 0
+          AND B.isBook = 0
           AND CAST(A.TimeTo AS TIME) < CAST(B.TimeFrom AS TIME)
           AND DATEDIFF(MINUTE, CAST(A.TimeTo AS TIME), CAST(B.TimeFrom AS TIME)) <= 30
       WHERE A.TrxDate = @TrxDate
@@ -192,6 +196,7 @@ async function FindScheduleExtend(TrxDate, TchID, Sequence) {
     return { success: false, message: error.message };
   }
 }
+
 
 async function create(req, res) {
   const {
