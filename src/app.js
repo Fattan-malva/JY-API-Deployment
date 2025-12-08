@@ -25,6 +25,9 @@ app.use(helmet()); // proteksi header HTTP
 app.use(cors({ origin: process.env.CLIENT_URL || '*' })); // atur origin FE Flutter
 app.use(express.json());
 
+app.set('trust proxy', 1);
+
+
 // Rate Limiter (batas request agar anti-DDOS/bruteforce)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 menit

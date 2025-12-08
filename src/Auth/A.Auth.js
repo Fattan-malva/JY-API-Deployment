@@ -48,7 +48,6 @@ async function register(req, res) {
   }
 }
 
-// ================= LOGIN =================
 async function login(req, res) {
   const { email, password } = req.body;
 
@@ -60,7 +59,11 @@ async function login(req, res) {
     const pool = await getPool();
     const result = await pool.request()
       .input('email', sql.VarChar(100), email)
-      .query('SELECT * FROM MstCustomerLogin WHERE email = @email');
+      .query(`
+        SELECT *
+        FROM MstCustomerLogin
+        WHERE email = @email COLLATE SQL_Latin1_General_CP1_CS_AS
+      `);
 
     const user = result.recordset[0];
     if (!user) {
@@ -72,7 +75,6 @@ async function login(req, res) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Generate JWT dengan masa berlaku panjang (misal 7 hari)
     const token = jwt.sign(
       { id: user.customerID, email: user.email, name: user.name },
       process.env.JWT_SECRET,
