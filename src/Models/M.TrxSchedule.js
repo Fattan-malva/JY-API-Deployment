@@ -18,6 +18,7 @@ async function findScheduleByParams(date, roomType, studioID) {
           s.Name AS StudioName,
           r.RoomName,
           c.ClassName,
+          e1.EmployeeID AS tchID,
           e1.EmployeeName AS Teacher1,
           e2.EmployeeName AS Teacher2
       FROM TrxClassSchedule j
@@ -89,6 +90,7 @@ async function findScheduleByDate(date) {
           s.Name AS StudioName,
           r.RoomName,
           c.ClassName,
+          e1.EmployeeID AS tchID,
           e1.EmployeeName AS Teacher1,
           e2.EmployeeName AS Teacher2
       FROM TrxClassSchedule j
@@ -159,6 +161,7 @@ async function findScheduleByDateAndStudio(date, studioID) {
           s.Name AS StudioName,
           r.RoomName,
           c.ClassName,
+          e1.EmployeeID AS tchID,
           e1.EmployeeName AS Teacher1,
           e2.EmployeeName AS Teacher2
       FROM TrxClassSchedule j
@@ -230,6 +233,7 @@ async function findScheduleByDateAndRoomType(date, roomType) {
           s.Name AS StudioName,
           r.RoomName,
           c.ClassName,
+          e1.EmployeeID AS tchID,
           e1.EmployeeName AS Teacher1,
           e2.EmployeeName AS Teacher2
       FROM TrxClassSchedule j
