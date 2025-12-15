@@ -17,6 +17,7 @@ const ProductRoutes = require('./Routes/R.MstProduct');
 const bookingRoutes = require('./Routes/R.TrxClassBooking');
 const JustMeRoutes = require('./Routes/R.TrxTchJM_Available');
 const TrxStudentJM_BookingListRoutes = require('./Routes/R.TrxStudentJM_BookingList');
+const TrxConsultationRoutes = require('./Routes/R.TrxConsultation');
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/justme', JustMeRoutes);
 app.use('/api/jm-bookings', TrxStudentJM_BookingListRoutes);
+app.use('/api/consultations', TrxConsultationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

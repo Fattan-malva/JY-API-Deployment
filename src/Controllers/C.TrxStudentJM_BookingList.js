@@ -11,7 +11,7 @@ async function show(req, res) {
         const bookingData = await JmBookingModel.findByCustomerId(CustomerId);
 
         if (bookingData.length === 0) {
-            return res.status(404).json({ message: "No booking found for this CustomerId" });
+            return res.status(404).json({ message: "No Just Me Booking found for this CustomerId" });
         }
 
         res.json(bookingData);
