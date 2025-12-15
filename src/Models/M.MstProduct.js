@@ -37,7 +37,7 @@ async function findPlanProductByCustomerID(customerID) {
       FROM TrxContract tc
       INNER JOIN MstProduct mp ON tc.productID = mp.productID
       WHERE tc.customerID = @customerID
-      ORDER BY tc.trxDate ASC
+      ORDER BY tc.trxDate DESC
     `);
 
   return result.recordset;
@@ -57,7 +57,7 @@ async function findJustMeHistoryByCustomerID(customerID) {
       FROM TrxJustMe tj
       INNER JOIN MstProduct mp ON tj.productID = mp.productID
       WHERE tj.customerID = @customerID
-      ORDER BY tj.startDate ASC
+      ORDER BY tj.startDate DESC
     `);
 
   return result.recordset;
