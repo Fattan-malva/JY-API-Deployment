@@ -1,4 +1,19 @@
 const JustMeModel = require('../Models/M.TrxTchJM_Available');
+const { drop } = require('../Models/M.TrxTchJM_Available');
+
+// Controller untuk membatalkan booking
+async function cancelBooking(req, res) {
+  try {
+    return await drop(req, res);
+  } catch (error) {
+    console.error('Error in cancelBooking controller:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+}
 
 async function getAll(req, res) {
   try {
@@ -95,4 +110,11 @@ async function getScheduleExtend(req, res) {
   }
 }
 
-module.exports = { getAll, getByDate, getByDateAndStudio, create, getScheduleExtend };
+module.exports = { 
+  getAll, 
+  getByDate, 
+  getByDateAndStudio, 
+  create, 
+  getScheduleExtend, 
+  cancelBooking 
+};

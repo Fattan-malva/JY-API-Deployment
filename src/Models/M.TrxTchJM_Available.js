@@ -407,4 +407,119 @@ async function create(req, res) {
   }
 }
 
-module.exports = { findAll, findByDate, findByDateAndStudio, checkAvailability, FindScheduleExtend, create };
+async function drop(req, res) {
+  const { 
+    TrxDate,
+    CustomerID,
+    TchID,
+    TchSeq
+  } = req.body;
+
+  // Validasi input
+  if (!TrxDate || !CustomerID || !TchID || !TchSeq) {
+    return res.status(400).json({ 
+      message: 'TrxDate, CustomerID, TchID, and TchSeq are required.' 
+    });
+  }
+
+  const pool = await getPool();
+  const transaction = new sql.Transaction(pool);
+
+  try {
+    await transaction.begin();
+
+    // 1️⃣ Dapatkan data booking yang akan dihapus
+    const bookingData = await transaction
+      .request()
+      .input('TrxDate', sql.SmallDateTime, TrxDate)
+      .input('CustomerID', sql.VarChar(50), CustomerID)
+      .input('TchID', sql.VarChar(50), TchID)
+      .input('TchSeq', sql.TinyInt, TchSeq)
+      .query(`
+        SELECT ToStudioID, TchSeq2
+        FROM TrxStudentJM_BookingList
+        WHERE TrxDate = @TrxDate
+          AND CustomerID = @CustomerID
+          AND TchID = @TchID
+          AND TchSeq = @TchSeq
+      `);
+
+    if (bookingData.recordset.length === 0) {
+      await transaction.rollback();
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    const { ToStudioID, TchSeq2 } = bookingData.recordset[0];
+
+    // 2️⃣ Hapus data booking
+    await transaction
+      .request()
+      .input('TrxDate', sql.SmallDateTime, TrxDate)
+      .input('CustomerID', sql.VarChar(50), CustomerID)
+      .input('TchID', sql.VarChar(50), TchID)
+      .input('TchSeq', sql.TinyInt, TchSeq)
+      .query(`
+        DELETE FROM TrxStudentJM_BookingList
+        WHERE TrxDate = @TrxDate
+          AND CustomerID = @CustomerID
+          AND TchID = @TchID
+          AND TchSeq = @TchSeq
+      `);
+
+    // 3️⃣ Update status isBook di TrxTchJM_Available untuk TchSeq
+    await transaction
+      .request()
+      .input('TrxDate', sql.SmallDateTime, TrxDate)
+      .input('ToStudioID', sql.VarChar(50), ToStudioID)
+      .input('TchID', sql.VarChar(50), TchID)
+      .input('TchSeq', sql.TinyInt, TchSeq)
+      .query(`
+        UPDATE TrxTchJM_Available
+        SET isBook = 0
+        WHERE TrxDate = @TrxDate
+          AND ToStudioID = @ToStudioID
+          AND TchID = @TchID
+          AND Sequence = @TchSeq
+      `);
+
+    // 4️⃣ Jika ada TchSeq2, update juga status isBook-nya
+    if (TchSeq2 !== null && TchSeq2 !== undefined) {
+      await transaction
+        .request()
+        .input('TrxDate', sql.SmallDateTime, TrxDate)
+        .input('ToStudioID', sql.VarChar(50), ToStudioID)
+        .input('TchID', sql.VarChar(50), TchID)
+        .input('TchSeq2', sql.TinyInt, TchSeq2)
+        .query(`
+          UPDATE TrxTchJM_Available
+          SET isBook = 0
+          WHERE TrxDate = @TrxDate
+            AND ToStudioID = @ToStudioID
+            AND TchID = @TchID
+            AND Sequence = @TchSeq2
+        `);
+    }
+
+    await transaction.commit();
+
+    return res
+      .status(200)
+      .json({ 
+        success: true,
+        message: 'Booking successfully cancelled and slots have been released' 
+      });
+
+  } catch (error) {
+    await transaction.rollback();
+    console.error('Error cancelling booking:', error);
+    return res
+      .status(500)
+      .json({ 
+        success: false,
+        message: 'Failed to cancel booking', 
+        error: error.message 
+      });
+  }
+}
+
+module.exports = { findAll, findByDate, findByDateAndStudio, checkAvailability, FindScheduleExtend, create, drop };

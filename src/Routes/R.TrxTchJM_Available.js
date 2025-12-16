@@ -14,4 +14,7 @@ router.get('/schedule-extend', authenticateToken, JustMeController.getScheduleEx
 // POST create booking
 router.post('/', authenticateToken, JustMeController.create);
 
+// POST cancel booking
+router.post('/just-me/cancel', authenticateToken, JustMeController.cancelBooking);
+
 module.exports = router;
