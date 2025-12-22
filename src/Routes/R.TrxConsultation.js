@@ -4,6 +4,6 @@ const TrxConsultationController = require('../Controllers/C.TrxConsultation');
 const { authenticateToken } = require('../Auth/middleware');
 
 
-router.get('/find-by-customer-id',  TrxConsultationController.show);
+router.get('/find-by-customer-id', authenticateToken, TrxConsultationController.show);
 
 module.exports = router;
