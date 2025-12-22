@@ -5,7 +5,9 @@ async function findByStudentID(StudentID) {
     const result = await pool.request()
         .input('StudentID', sql.VarChar(50), StudentID)
         .query(`
-      SELECT * FROM TrxConsultation
+      SELECT me.EmployeeName AS TeacherName, tcl.* FROM TrxConsultation tcl
+        INNER JOIN MstEmployee me 
+          ON me.employeeID = tcl.TchID
         WHERE StudentID = @StudentID
         ORDER BY TrxDate
     `);
