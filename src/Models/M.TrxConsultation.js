@@ -261,7 +261,7 @@ async function drop(req, res) {
   } = req.body;
 
   // 🧩 Validasi input
-  if (!TrxDate || !CustomerID || !TchID || !ConsulID) {
+  if (!TrxDate || !CustomerID || !ToStudioID || !TchID || !TchSeq || !ConsulID) {
     return res.status(400).json({ message: 'TrxDate, CustomerID, ToStudioID, TchID, TchSeq, and ConsulID are required.' });
   }
 
