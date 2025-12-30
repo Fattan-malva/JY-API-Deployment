@@ -21,4 +21,26 @@ async function show(req, res) {
     }
 }
 
-module.exports = { show };
+async function create(req, res) {
+    try {
+        // Langsung panggil fungsi create dari model
+        await ConsultationBookingModel.create(req, res);
+    } catch (error) {
+        console.error("Error creating consultation:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+async function cancelBooking(req, res) {
+    try {
+        return await ConsultationBookingModel.drop(req, res);
+    } catch (error) {
+        console.error('Error in cancelBooking controller:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
+module.exports = { show, create ,cancelBooking };

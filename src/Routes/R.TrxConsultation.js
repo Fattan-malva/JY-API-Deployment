@@ -6,4 +6,8 @@ const { authenticateToken } = require('../Auth/middleware');
 
 router.get('/find-by-customer-id', authenticateToken, TrxConsultationController.show);
 
+router.post('/', authenticateToken, TrxConsultationController.create);
+
+router.post('/bookings/cancel', authenticateToken, TrxConsultationController.cancelBooking);
+
 module.exports = router;

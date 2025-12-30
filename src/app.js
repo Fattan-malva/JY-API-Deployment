@@ -42,7 +42,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/activation', ActivationRoutes);
 app.use('/api/customers', CustomerLoginRoutes);
 app.use('/api/employees', employeeRoutes);
-app.use('/api/product', ProductRoutes);
+app.use('/api/product', ProductRoutes); 
 app.use('/api/classes', classRoutes);
 app.use('/api/studios', studioRoutes);
 app.use('/api/room-types', roomTypeRoutes);
