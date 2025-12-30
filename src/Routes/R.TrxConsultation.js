@@ -6,7 +6,7 @@ const { authenticateToken } = require('../Auth/middleware');
 
 router.get('/find-by-customer-id', authenticateToken, TrxConsultationController.show);
 
-router.get('/find-history-by-customer-id',  TrxConsultationController.historybooking);
+router.get('/find-history-by-customer-id', authenticateToken, TrxConsultationController.historybooking);
 
 router.post('/', authenticateToken, TrxConsultationController.create);
 
