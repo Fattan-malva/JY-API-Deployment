@@ -144,14 +144,14 @@ async function create(req, res) {
     // 🟢 2️⃣ Update isBook jadi true di TrxTchJM_Available
     await transaction
       .request()
-      .input('TrxDate', sql.DateTime, TrxDate)
+      .input('ConsulDate', sql.DateTime, ConsulDate)
       .input('ToStudioID', sql.VarChar(50), ToStudioID)
       .input('TchID', sql.VarChar(50), TchID)
       .input('TchSeq', sql.TinyInt, TchSeq)
       .query(`
     UPDATE TrxTchJM_Available
     SET isBook = 1
-    WHERE TrxDate = @TrxDate
+    WHERE TrxDate = @ConsulDate
       AND ToStudioID = @ToStudioID
       AND TchID = @TchID
       AND Sequence = @TchSeq
@@ -161,14 +161,14 @@ async function create(req, res) {
     if (TchSeq2 !== null && TchSeq2 !== undefined) {
       await transaction
         .request()
-        .input('TrxDate', sql.DateTime, TrxDate)
+        .input('ConsulDate', sql.DateTime, ConsulDate)
         .input('ToStudioID', sql.VarChar(50), ToStudioID)
         .input('TchID', sql.VarChar(50), TchID)
         .input('TchSeq2', sql.TinyInt, TchSeq2)
         .query(`
       UPDATE TrxTchJM_Available
       SET isBook = 1
-      WHERE TrxDate = @TrxDate
+      WHERE TrxDate = @ConsulDate
         AND ToStudioID = @ToStudioID
         AND TchID = @TchID
         AND Sequence = @TchSeq2
@@ -197,6 +197,7 @@ async function create(req, res) {
       .input('createDate', sql.DateTime, new Date())
       .input('createBy', sql.Int, CreatedBy)
       .input('SEID', sql.Int, 0)
+      .input('TchSeq', sql.TinyInt, TchSeq)
       .query(`
     INSERT INTO TrxConsultation (
       ConsulID,
@@ -216,7 +217,8 @@ async function create(req, res) {
       CoTime,
       createDate,
       createBy,
-      SEID
+      SEID,
+      TchSeq
     )
     VALUES (
       @ConsulID,
@@ -236,7 +238,8 @@ async function create(req, res) {
       @CoTime,
       @createDate,
       @createBy,
-      @SEID
+      @SEID,
+      @TchSeq
     )
   `);
 
@@ -266,7 +269,7 @@ async function create(req, res) {
 
 async function drop(req, res) {
   const {
-    TrxDate,
+    ConsulDate,
     CustomerID,
     ToStudioID,
     TchID,
@@ -275,9 +278,9 @@ async function drop(req, res) {
     ConsulID
   } = req.body;
 
-  // 🧩 Validasi input
-  if (!TrxDate || !CustomerID || !ToStudioID || !TchID || !TchSeq || !ConsulID) {
-    return res.status(400).json({ message: 'TrxDate, CustomerID, ToStudioID, TchID, TchSeq, and ConsulID are required.' });
+  // Validasi input
+  if (!ConsulDate || !CustomerID || !ToStudioID || !TchID || !TchSeq || !ConsulID) {
+    return res.status(400).json({ message: 'ConsulDate, CustomerID, ToStudioID, TchID, TchSeq, and ConsulID are required.' });
   }
 
   const pool = await getPool();
@@ -286,17 +289,17 @@ async function drop(req, res) {
   try {
     await transaction.begin();
 
-    // 🔍 1️⃣ Cek apakah booking ada
+    // 1️⃣ Cek apakah booking ada
     const checkBooking = await transaction
       .request()
-      .input('TrxDate', sql.DateTime, TrxDate)
+      .input('ConsulDate', sql.DateTime, ConsulDate)
       .input('CustomerID', sql.Int, CustomerID)
       .input('TchID', sql.Int, TchID)
       .input('ConsulID', sql.VarChar(20), ConsulID)
       .query(`
         SELECT COUNT(*) AS BookingCount
         FROM TrxConsultation
-        WHERE trxDate = @TrxDate
+        WHERE ConsulDate = @ConsulDate
           AND StudentID = @CustomerID
           AND TchID = @TchID
           AND ConsulID = @ConsulID
@@ -311,49 +314,49 @@ async function drop(req, res) {
       });
     }
 
-    // 🗑️ 2️⃣ Hapus dari TrxConsultation
+    // 2️⃣ Hapus dari TrxConsultation
     await transaction
       .request()
-      .input('TrxDate', sql.DateTime, TrxDate)
+      .input('ConsulDate', sql.DateTime, ConsulDate)
       .input('CustomerID', sql.Int, CustomerID)
       .input('TchID', sql.Int, TchID)
       .input('ConsulID', sql.VarChar(20), ConsulID)
       .query(`
         DELETE FROM TrxConsultation
-        WHERE trxDate = @TrxDate
+        WHERE ConsulDate = @ConsulDate
           AND StudentID = @CustomerID
           AND TchID = @TchID
           AND ConsulID = @ConsulID
       `);
 
-    // 🟢 3️⃣ Update isBook jadi false di TrxTchJM_Available
+    // 3️⃣ Update isBook jadi false di TrxTchJM_Available
     await transaction
       .request()
-      .input('TrxDate', sql.DateTime, TrxDate)
+      .input('ConsulDate', sql.DateTime, ConsulDate)
       .input('ToStudioID', sql.VarChar(50), ToStudioID)
       .input('TchID', sql.Int, TchID)
       .input('TchSeq', sql.TinyInt, TchSeq)
       .query(`
     UPDATE TrxTchJM_Available
     SET isBook = 0
-    WHERE TrxDate = @TrxDate
+    WHERE TrxDate = @ConsulDate
       AND ToStudioID = @ToStudioID
       AND TchID = @TchID
       AND Sequence = @TchSeq
   `);
 
-    // 🔁 Jika ada TchSeq2, update juga slot kedua
+    // Jika ada TchSeq2, update juga slot kedua
     if (TchSeq2 !== null && TchSeq2 !== undefined) {
       await transaction
         .request()
-        .input('TrxDate', sql.DateTime, TrxDate)
+        .input('ConsulDate', sql.DateTime, ConsulDate)
         .input('ToStudioID', sql.VarChar(50), ToStudioID)
         .input('TchID', sql.Int, TchID)
         .input('TchSeq2', sql.TinyInt, TchSeq2)
         .query(`
       UPDATE TrxTchJM_Available
       SET isBook = 0
-      WHERE TrxDate = @TrxDate
+      WHERE TrxDate = @ConsulDate
         AND ToStudioID = @ToStudioID
         AND TchID = @TchID
         AND Sequence = @TchSeq2
