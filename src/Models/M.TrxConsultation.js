@@ -58,7 +58,6 @@ async function create(req, res) {
     !FromStudioID ||
     !ToStudioID ||
     !TchID ||
-    !TchSeq ||
     !BookBy ||
     !CreatedBy ||
     !ConsulID ||
@@ -146,15 +145,15 @@ async function create(req, res) {
       .request()
       .input('ConsulDate', sql.DateTime, ConsulDate)
       .input('ToStudioID', sql.VarChar(50), ToStudioID)
+      .input('ConsulTime', sql.VarChar(50), ConsulTime)
       .input('TchID', sql.VarChar(50), TchID)
-      .input('TchSeq', sql.TinyInt, TchSeq)
       .query(`
     UPDATE TrxTchJM_Available
     SET isBook = 1
     WHERE TrxDate = @ConsulDate
       AND ToStudioID = @ToStudioID
       AND TchID = @TchID
-      AND Sequence = @TchSeq
+      AND TimeFrom = @ConsulTime
   `);
 
     // 🔁 Jika ada TchSeq2, update juga slot kedua
@@ -163,15 +162,15 @@ async function create(req, res) {
         .request()
         .input('ConsulDate', sql.DateTime, ConsulDate)
         .input('ToStudioID', sql.VarChar(50), ToStudioID)
+        .input('ConsulTime', sql.VarChar(50), ConsulTime)
         .input('TchID', sql.VarChar(50), TchID)
-        .input('TchSeq2', sql.TinyInt, TchSeq2)
         .query(`
       UPDATE TrxTchJM_Available
       SET isBook = 1
       WHERE TrxDate = @ConsulDate
         AND ToStudioID = @ToStudioID
-        AND TchID = @TchID
-        AND Sequence = @TchSeq2
+      AND TchID = @TchID
+      AND TimeFrom = @ConsulTime
     `);
     }
 
@@ -273,14 +272,14 @@ async function drop(req, res) {
     CustomerID,
     ToStudioID,
     TchID,
-    TchSeq,
     TchSeq2,
+    ConsulTime,
     ConsulID
   } = req.body;
 
   // Validasi input
-  if (!ConsulDate || !CustomerID || !ToStudioID || !TchID || !TchSeq || !ConsulID) {
-    return res.status(400).json({ message: 'ConsulDate, CustomerID, ToStudioID, TchID, TchSeq, and ConsulID are required.' });
+  if (!ConsulDate || !CustomerID || !ToStudioID || !TchID || !ConsulTime || !ConsulID) {
+    return res.status(400).json({ message: 'ConsulDate, CustomerID, ToStudioID, TchID, ConsulTime, and ConsulID are required.' });
   }
 
   const pool = await getPool();
@@ -335,14 +334,14 @@ async function drop(req, res) {
       .input('ConsulDate', sql.DateTime, ConsulDate)
       .input('ToStudioID', sql.VarChar(50), ToStudioID)
       .input('TchID', sql.Int, TchID)
-      .input('TchSeq', sql.TinyInt, TchSeq)
+      .input('ConsulTime', sql.VarChar(50), ConsulTime)
       .query(`
     UPDATE TrxTchJM_Available
     SET isBook = 0
     WHERE TrxDate = @ConsulDate
       AND ToStudioID = @ToStudioID
       AND TchID = @TchID
-      AND Sequence = @TchSeq
+      AND TimeFrom = @ConsulTime
   `);
 
     // Jika ada TchSeq2, update juga slot kedua
@@ -352,14 +351,14 @@ async function drop(req, res) {
         .input('ConsulDate', sql.DateTime, ConsulDate)
         .input('ToStudioID', sql.VarChar(50), ToStudioID)
         .input('TchID', sql.Int, TchID)
-        .input('TchSeq2', sql.TinyInt, TchSeq2)
+        .input('ConsulTime', sql.VarChar(50), ConsulTime)
         .query(`
       UPDATE TrxTchJM_Available
       SET isBook = 0
       WHERE TrxDate = @ConsulDate
         AND ToStudioID = @ToStudioID
         AND TchID = @TchID
-        AND Sequence = @TchSeq2
+        AND TimeFrom = @ConsulTime
     `);
     }
 
