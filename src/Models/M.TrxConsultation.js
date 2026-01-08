@@ -185,16 +185,16 @@ async function create(req, res) {
       .input('studioID', sql.Int, studioID)
       .input('MemberType', sql.Int, MemberType)
       .input('remark', sql.VarChar(255), remark || '')
-      .input('StudentID', sql.Int, StudentID)
+      .input('StudentID', sql.VarChar(50), StudentID)
       .input('StudentName', sql.VarChar(100), StudentName)
-      .input('TchID', sql.Int, TchID)
+      .input('TchID', sql.VarChar(50), TchID)
       .input('CiCo', sql.Int, 0)
       .input('TchID1', sql.Int, null)
       .input('TchID2', sql.Int, null)
       .input('CiTime', sql.DateTime, null)
       .input('CoTime', sql.DateTime, null)
       .input('createDate', sql.DateTime, new Date())
-      .input('createBy', sql.Int, CreatedBy)
+      .input('createBy', sql.VarChar(50), CreatedBy)
       .input('SEID', sql.Int, 0)
       .input('TchSeq', sql.TinyInt, TchSeq)
       .input('BookBy', sql.VarChar(50), BookBy)
@@ -295,7 +295,7 @@ async function drop(req, res) {
     const checkBooking = await transaction
       .request()
       .input('ConsulDate', sql.DateTime, ConsulDate)
-      .input('CustomerID', sql.Int, CustomerID)
+      .input('CustomerID', sql.VarChar(50), CustomerID)
       .input('TchID', sql.Int, TchID)
       .input('ConsulID', sql.VarChar(20), ConsulID)
       .query(`
@@ -320,7 +320,7 @@ async function drop(req, res) {
     await transaction
       .request()
       .input('ConsulDate', sql.DateTime, ConsulDate)
-      .input('CustomerID', sql.Int, CustomerID)
+      .input('CustomerID', sql.VarChar(50), CustomerID)
       .input('TchID', sql.Int, TchID)
       .input('ConsulID', sql.VarChar(20), ConsulID)
       .query(`
