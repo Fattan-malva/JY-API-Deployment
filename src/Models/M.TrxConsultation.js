@@ -8,7 +8,7 @@ async function findByStudentID(StudentID) {
       SELECT me.EmployeeName AS TeacherName, tcl.* FROM TrxConsultation tcl
         INNER JOIN MstEmployee me 
           ON me.employeeID = tcl.TchID
-        WHERE StudentID = @StudentID
+        WHERE StudentID = @StudentID AND tcl.CiCo IN (0, 1)
         ORDER BY TrxDate
     `);
 
@@ -23,7 +23,7 @@ async function findHistoryByStudentID(StudentID) {
       SELECT me.EmployeeName AS TeacherName, tcl.* FROM TrxConsultation tcl
         INNER JOIN MstEmployee me 
           ON me.employeeID = tcl.TchID
-        WHERE StudentID = @StudentID
+        WHERE StudentID = @StudentID AND tcl.CiCo = 2
         ORDER BY TrxDate
     `);
 
