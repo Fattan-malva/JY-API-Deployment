@@ -29,10 +29,10 @@ async function historybooking(req, res) {
             return res.status(400).json({ message: "StudentID is required" });
         }
 
-        const bookingData = await ConsultationBookingModel.findByStudentID(StudentID);
+        const bookingData = await ConsultationBookingModel.findHistoryByStudentID(StudentID);
 
         if (bookingData.length === 0) {
-            return res.status(404).json({ message: "No Consultation Booking found for this StudentID" });
+            return res.status(404).json({ message: "No Consultation Booking history found for this StudentID" });
         }
 
         res.json(bookingData);
