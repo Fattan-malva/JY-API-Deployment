@@ -48,7 +48,7 @@ async function create(req, res) {
     MemberType,
     remark,
     StudentID,
-    StudentName
+    StudentName,
   } = req.body;
 
   // 🧩 Validasi input
@@ -197,6 +197,7 @@ async function create(req, res) {
       .input('createBy', sql.Int, CreatedBy)
       .input('SEID', sql.Int, 0)
       .input('TchSeq', sql.TinyInt, TchSeq)
+      .input('BookBy', sql.VarChar(50), BookBy)
       .query(`
     INSERT INTO TrxConsultation (
       ConsulID,
@@ -217,7 +218,8 @@ async function create(req, res) {
       createDate,
       createBy,
       SEID,
-      TchSeq
+      TchSeq,
+      BookBy
     )
     VALUES (
       @ConsulID,
@@ -238,7 +240,8 @@ async function create(req, res) {
       @createDate,
       @createBy,
       @SEID,
-      @TchSeq
+      @TchSeq,
+      @BookBy
     )
   `);
 
