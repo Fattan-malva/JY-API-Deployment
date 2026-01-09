@@ -17,6 +17,7 @@ async function findById(customerID) {
         tc.status,
         tc.endDate AS EndDateMembership,
         tjm.endDate AS EndDateJMMembership,
+        tjm.remainSession AS RemainSessionJMMembership,
         mcl.noIdentity,
         mcl.birthDate,
         mcl.phone,
@@ -29,12 +30,12 @@ async function findById(customerID) {
         LEFT JOIN MstProduct mp 
           ON mp.productID = tc.productID
         LEFT JOIN (
-          SELECT customerID, endDate
+          SELECT customerID, endDate , remainSession
           FROM TrxJustMe tjm1
           WHERE tjm1.endDate = (
-            SELECT MAX(endDate)
+            SELECT MIN(endDate)
             FROM TrxJustMe tjm2
-            WHERE tjm2.customerID = tjm1.customerID
+            WHERE tjm2.customerID = tjm1.customerID AND tjm2.remainSession > 0 AND Convert(Varchar(8), tjm2.endDate, 112) >= Convert(Varchar(8), GETDATE(), 112)
           )
         ) tjm 
           ON tjm.customerID = mcl.customerID
