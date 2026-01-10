@@ -9,6 +9,7 @@ async function findAll() {
                 me.employeeID, 
                 me.absenID, 
                 me.employeeName, 
+                me.pic,
                 me.gender, 
                 me.dateOfBirth, 
                 me.address, 
